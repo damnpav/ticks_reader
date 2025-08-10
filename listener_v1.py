@@ -50,10 +50,11 @@ try:
                     (symbol, time, bid, ask, last, volume, time_msc, flags, volume_real)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, [
-                    (sym, t.time, t.bid, t.ask, t.last, t.volume,
-                     t.time_msc, t.flags, t.volume_real)
+                    (sym, int(t['time']), float(t['bid']), float(t['ask']), float(t['last']),
+                     int(t['volume']), int(t['time_msc']), int(t['flags']), float(t['volume_real']))
                     for t in ticks
                 ])
+
                 conn.commit()
 
                 print(f"{sym}: got {len(ticks)} ticks")
