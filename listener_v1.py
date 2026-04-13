@@ -42,6 +42,7 @@ try:
         for sym in SYMBOLS:
             ticks = MT5.copy_ticks_from(sym, last_time[sym], 1000, MT5.COPY_TICKS_ALL)
             if len(ticks) > 0:
+            	dt.now()
                 newest_ms = ticks['time_msc'][-1]
                 last_time[sym] = datetime.fromtimestamp(newest_ms / 1000, tz=timezone.utc)
 
