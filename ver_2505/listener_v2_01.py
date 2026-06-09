@@ -45,13 +45,20 @@ def check_breaktime():
     return now.weekday() == 6 and now.hour == 15 and now.minute == 0
 
 
-def backup_db(db_file, data_dump, broker):
-    print(1)   # FLAG
+def truncate_vacuum(conn_v, cur_v):
+    cur_v.execute("DELETE FROM ticks")
+    cur_v.execute("DELETE FROM health_log")
+    conn_v.commit()
+    cur_v.execute("VACUUM")
+
+
+def backup_db(db_file, data_dump, broker, conn_v, cur_v):
     current_path = data_dump + datetime.today().strftime("%Y%m%d__%H%M%S") + f'_{broker}.db'
     try:
         shutil.copy(db_file, current_path)
-        print("File copied successfully.")
-        # todo - truncate function here
+        print("File copied successfully. Starting truncating ...")
+        truncate_vacuum(conn_v, cur_v)
+        print(f'Truncating successful')
     except Exception as e:
         print(f'Exception on backup_db: {e}')
 
@@ -143,8 +150,9 @@ try:
             window_syms_ok = set()
             last_error     = None
             last_log_time  = now
-
         time.sleep(POLL_INTERVAL)
+        if check_breaktime():
+            backup_db(DB_FILE, DATA_DUMP, BROKER, conn, cursor)
 
 except KeyboardInterrupt:
     print(f"\n[{BROKER}] Stopped by user.")
